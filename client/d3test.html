@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+text {
+  font: bold 48px monospace;
+}
+
+.enter {
+  fill: green;
+}
+
+.update {
+  fill: #333;
+}
+
+</style>
+<body>
+<script src="lib/d3.js"></script>
+<script>
+
+var alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
+
+// alphabet is an array of the letters
+
+var width = 960,
+    height = 500;
+
+// 1st reference to select - looks to select a node and maybe do something with it
+// svg is the overall container for the page, // g is the container for the letters 
+// body > svg > g > all the letters
+// attr stored directly on the elements 
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+  .append("g")
+    .attr("transform", "translate(32," + (height / 2) + ")");
+
+function update(data) {
+
+  // DATA JOIN
+  // Join new data with old elements, if any.
+  var text = svg.selectAll("text")
+      .data(data);
+ 
+ // why not g.selectAll?
+ //text is a d3 element on the incoming text 
+
+  // UPDATE
+  // Update old elements as needed.
+  text.attr("class", "update");
+
+// 
+
+  // ENTER
+  // Create new elements as needed.
+  text.enter().append("text")
+      .attr("class", "enter")
+      .attr("x", function(d, i) { return i * 32; })
+      .attr("dy", ".35em");
+
+  // ENTER + UPDATE
+  // Appending to the enter selection expands the update selection to include
+  // entering elements; so, operations on the update selection after appending to
+  // the enter selection will apply to both entering and updating nodes.
+  text.text(function(d) { return d; });
+
+  // EXIT
+  // Remove old elements as needed.
+  text.exit().remove();
+}
+
+// The initial display.
+update(alphabet);
+
+// Grab a random sample of letters from the alphabet, in alphabetical order.
+setInterval(function() {
+  update(d3.shuffle(alphabet)
+      .slice(0, Math.floor(Math.random() * 26))
+      .sort());
+}, 5000);
+
+</script>
+
+<!-- ['a','b','c'] -->

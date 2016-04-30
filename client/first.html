@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+
+
+</style>
+<body>
+<script src="lib/d3.js"></script>
+<script>
+
+var svgContainer = d3.select("body").append("svg")
+ .attr("width", 1000)
+ .attr("height", 1000);
+
+  var jsonCircles = [
+ { "x": 30, "y": 30, "radius": 20, "color" : "green" },
+  ];
+
+ var circles = svgContainer.selectAll("circle")
+.data(jsonCircles)
+.enter()
+.append("circle");
+
+var whileDrag;
+
+var circleAttributes = circles
+.attr("cx", function (d) { return d.x; })
+.attr("cy", function (d) { return d.y; })
+.attr("r", function (d) { return d.radius; })
+.style("fill", function(d) { return d.color; });
+
+var drag = d3.behavior.drag()
+  .on("drag", dragmove);
+
+var move = function() {
+    d3.selectAll('circle')
+    .each(function(node) {
+    node.x = Math.random() * 300;
+    node.y = Math.random() * 300;
+  })
+  .data([])
+  .exit()
+  .transition().duration(4000)
+  .attr('cx', d => d.x) 
+  .attr('cy', d => d.y);
+};
+
+var _aa = setInterval(move, 5000)
+
+// .on("dragstart", function() {
+//   console.log("starting drag!")
+// })
+// .on("drag", function(){
+//   console.log("hello world")
+// })
+// .on("dragend", function () {
+//   console.log("done dragging :(")
+// });
+
+function dragmove(d) {
+  d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y)
+}
+
+d3.selectAll("circle").call(drag);
+
+  
+
+
+
+
+
+
+</script>

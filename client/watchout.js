@@ -1,29 +1,28 @@
 // start slingin' some d3 here.
-var data = [{x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 80 + 10}];
+var data = [{x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 80 + 10},
+{x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 80 + 10},
+{x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 80 + 10},
+{x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 80 + 10},
+{x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 80 + 10}];
 
 var heroData = [{x: Math.random() * 800, y: Math.random() * 800, r: 25}];
 
 var svg = d3.select('.board').append("svg").attr("width", 800).attr("height", 800);
 
+
+
+var dragmove = function (d) {
+  d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y)
+}
+
 var drag = d3.behavior.drag()
-        .origin(function(d) { return {x:d.x, y:d.y}; })
-        .on('dragstart', function (d) {
-
-        })
-        .on('drag', function (d) {
-            var xCoord = d.x;
-            // console.log("dx was," + xCoord);
-            d.x += d3.event.dx;
-           
-
-            d.y += d3.event.dy;
-            d3.select(this)
-                .attr('transform', 'translate(' + d.x + ',' + d.y + ')');
-            // console.log("dx is now," + d.x);
-        })
-        .on('dragend', function (d) {
-
-        });
+        // .on('dragstart', function (d) {
+        //   d3.select(this).classed("dragging", true);
+        // })
+        .on('drag', dragmove)
+        // .on('dragended', function (d) {
+        //   d3.select(this).classed("dragging", false);
+        // })
 
 var asteroids = svg
   .selectAll("circle")
@@ -37,6 +36,9 @@ asteroids
   .attr("cy", d => d.y)
   .attr("class", "enemy");
 
+
+              
+
 var player = svg
   .selectAll(".hero")
   .data(heroData)
@@ -49,7 +51,8 @@ player
   .attr("cx", d => d.x)
   .attr("cy", d => d.y)
   .style('fill', "yellow")
-  .attr('class', 'hero');
+  .attr('class', 'hero')
+  // .attr('class', 'dragging');
 
 
 // click dragging 
@@ -59,8 +62,11 @@ player
 
 // collision detection 
 var collisions = 0;
+var collisionDetect = false;
+var newCollision = true;
 
 function collision () {
+  var currentDetection = false;
   d3.selectAll('.enemy')
   .each(node => {
     var heroR = +d3.select('.hero').attr('r');
@@ -70,22 +76,58 @@ function collision () {
     var nodeX = node.x;
     var nodeY = node.y;
     var distance = Math.pow(Math.pow(nodeX - heroX, 2) + Math.pow(nodeY - heroY, 2), .5);
+    
     if (distance < heroR + nodeR) {
-      collisions++;
+      currentDetection = true;
+      collisionDetect = true;
+      if (newCollision) {
+        collisions++;
+
+        newCollision = false;
+      }
     }
+    // } else {
+    //   collisionDetect = false;
+    //   newCollision = true;
+    // }
   });
+  if (!currentDetection) {
+    collisionDetect = false;
+    newCollision = true;
+  }
+
 }
 
 
-setInterval(collision, 100);
+setInterval(collision, 10);
 setInterval(function(){
-  if (collisions > 0) {
+  if (collisionDetect) {
     console.log("COLLISION");
+    console.log("there have been " + collisions + " so far")
   }
-}, 1000);
+}, 10);
 
 
 // asteroid movement 
+var updateEnemies = function() {
+  d3.selectAll('.enemy')
+  .each(function(node) {
+    node.x = Math.random() * 800;
+    node.y = Math.random() * 800;
+  })
+  .data([])
+  .exit()
+  .transition().duration(500)
+  .attr('cx', d => d.x) 
+  .attr('cy', d => d.y);
+
+};
+
+setInterval(updateEnemies, 1000);
+// set interval to 1000 ms
+  // select all asteroids 
+  // give them a new random x and y 
+  // select all transition the x and y with 500 ms
 
 
 
