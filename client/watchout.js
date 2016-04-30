@@ -1,28 +1,33 @@
 // start slingin' some d3 here.
-var data = [{x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 40 + 20},
-// {x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 20 + 20},
-// {x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 20 + 20},
-// {x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 20 + 20},
-// {x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 20 + 20},
-// {x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 20 + 20},
-// {x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 20 + 20},
-// {x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 20 + 20},
-// {x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 20 + 20},
-// {x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 20 + 20},
-// {x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 20 + 20},
-// {x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 20 + 20},
-// {x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 20 + 20},
-// {x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 20 + 20},
-// {x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 20 + 20},
-// {x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 20 + 20},
-{x: Math.random() * 800, y: Math.random() * 800, r: Math.random() * 40 + 20}]
-;
 
-var heroData = [{x: Math.random() * 800, y: Math.random() * 800, r: 10}];
+var width = 1600;
+var height = 800;
+var data = [{x: Math.random() * width, y: Math.random() * height, r: Math.random() * 40 + 20},
+{x: Math.random() * width, y: Math.random() * height, r: Math.random() * 40 + 20},
+{x: Math.random() * width, y: Math.random() * height, r: Math.random() * 40 + 20},
+{x: Math.random() * width, y: Math.random() * height, r: Math.random() * 40 + 20},
+{x: Math.random() * width, y: Math.random() * height, r: Math.random() * 40 + 20},
+{x: Math.random() * width, y: Math.random() * height, r: Math.random() * 40 + 20},
+{x: Math.random() * width, y: Math.random() * height, r: Math.random() * 40 + 20},
+{x: Math.random() * width, y: Math.random() * height, r: Math.random() * 40 + 20},
+{x: Math.random() * width, y: Math.random() * height, r: Math.random() * 40 + 20},
+{x: Math.random() * width, y: Math.random() * height, r: Math.random() * 40 + 20},
+{x: Math.random() * width, y: Math.random() * height, r: Math.random() * 40 + 20},
+{x: Math.random() * width, y: Math.random() * height, r: Math.random() * 40 + 20},
+{x: Math.random() * width, y: Math.random() * height, r: Math.random() * 40 + 20},
+];
 
-var svg = d3.select('.board').append("svg").attr("width", 800).attr("height", 800);
+var heroData = [{x: Math.random() * width, y: Math.random() * height, r: 10}];
 
+var svg = d3.select('.board').append("svg").attr("width", width).attr("height", height);
+var allScores = [0];
+var currentScore = 0;
+var highScore = 0;
 
+var timer = setInterval(() => { 
+  currentScore++; 
+  $('.current span').text(currentScore);
+}, 50);
 
 var dragmove = function (d) {
   d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
@@ -94,6 +99,17 @@ function collision () {
       // collisionDetect = true;
       if (newCollision) {
         collisions++;
+        clearInterval(timer);
+        d3.select('.board').classed('hit', true);
+        setTimeout(() => {d3.select('.board').classed('hit', false);}, 400);
+        allScores.push(currentScore);
+        highScore = Math.max(...allScores);
+        $('.highscore span').text(highScore);
+        currentScore = 0;
+        timer = setInterval(() => { 
+          currentScore++; 
+          $('.current span').text(currentScore);
+        }, 50);
         $('.collisions span').text(collisions);
         // newCollision = false;
 
@@ -115,19 +131,30 @@ function collision () {
 //   }
 // }, 10);
 
+var aa = setInterval(function() {
+  d3.selectAll('.enemy').each(function(d, i) {
+    // console.log(d3.select(this).attr('r'));
+    // console.log('hello');
+    collision.apply(this);
+
+    // console.log('this is ', this);
+    // console.log('d is ', d);
+    // console.log('i is ', i);
+  });
+
+}, 100);
 
 
 // asteroid movement 
 var updateEnemies = function() {
-  clearInterval(aa);
   d3.selectAll('.enemy')
   .each(function(node) {
-    node.x = Math.random() * 800;
-    node.y = Math.random() * 800;
+    node.x = Math.random() * width;
+    node.y = Math.random() * height;
   })
   .data([])
   .exit()
-  .transition().duration(4000)
+  .transition().duration(2000)
   .attr('cx', d => d.x) 
   .attr('cy', d => d.y)
   .tween('collision?', function() {
@@ -135,21 +162,11 @@ var updateEnemies = function() {
       collision.apply(this);
     };
   });
-  var aa = setInterval(function() {
-    d3.selectAll('.enemy').each(function(d, i) {
-      // console.log(d3.select(this).attr('r'));
-      collision.apply(this);
-
-      // console.log('this is ', this);
-      // console.log('d is ', d);
-      // console.log('i is ', i);
-    });
-
-  }, 100);
+  
 
 };
 
-setInterval(updateEnemies, 5000);
+setInterval(updateEnemies, 3000);
 // set interval to 1000 ms
   // select all asteroids 
   // give them a new random x and y 
