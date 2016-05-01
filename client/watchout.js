@@ -166,7 +166,7 @@ var updateEnemies = function() {
 
 };
 
-setInterval(updateEnemies, 5000);
+setInterval(updateEnemies, 2500);
 // set interval to 1000 ms
   // select all asteroids 
   // give them a new random x and y 
